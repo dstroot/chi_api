@@ -1,0 +1,11 @@
+package: github.com/dstroot/chi_api
+import:
+- package: github.com/pressly/chi
+  version: ^2.0.0
+  subpackages:
+  - docgen
+  - middleware
+  - render
+- package: github.com/goware/httpcoala
+- package: github.com/russross/blackfriday
+  version: ^1.4.0

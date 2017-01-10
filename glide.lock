@@ -1,0 +1,16 @@
+hash: 812dcf41651d210911409b6fe0f3ed32624ba06f1ad591880ede054dfb5dc4c7
+updated: 2017-01-10T12:42:23.393725539-08:00
+imports:
+- name: github.com/goware/httpcoala
+  version: bb21916a3e9c5e04ed0615ba66e120302d2e552b
+- name: github.com/pressly/chi
+  version: 54f435d539226571eab1987ed862b1c0fdfdc892
+  subpackages:
+  - docgen
+  - middleware
+  - render
+- name: github.com/russross/blackfriday
+  version: 0b647d0506a698cca42caca173e55559b12a69f2
+- name: github.com/shurcooL/sanitized_anchor_name
+  version: 1dba4b3954bc059efc3991ec364f9f9a35f597d2
+testImports: []
