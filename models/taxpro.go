@@ -34,9 +34,9 @@ func GetTaxpro(year string, efin string) ([]*TaxPro, error) {
 	defer rows.Close()
 
 	results := make([]*TaxPro, 0)
+	pro := new(TaxPro)
 
 	for rows.Next() {
-		pro := new(TaxPro) // TODO move outside loop
 		err1 := rows.Scan(&pro.EFIN, &pro.CompanyName, &pro.ProductCount, &pro.PremierPartner)
 		if err1 != nil {
 			return nil, err

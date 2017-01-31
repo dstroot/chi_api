@@ -1,12 +1,11 @@
 package main
 
 import (
-	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/dstroot/chi_api/handlers"
+	"github.com/dstroot/utility"
 	"github.com/goware/httpcoala"
 	"github.com/pressly/chi"
 	"github.com/pressly/chi/docgen"
@@ -14,19 +13,10 @@ import (
 	"github.com/russross/blackfriday"
 )
 
-// check streamlines error checks - use it *only*
-// when the program should halt
-func check(e error) {
-	if e != nil {
-		log.Printf("FATAL: %+v\n", e)
-		os.Exit(1)
-	}
-}
-
 func main() {
 
 	err := initialize()
-	check(err)
+	utility.Check(err)
 
 	r := chi.NewRouter()
 
