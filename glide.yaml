@@ -9,3 +9,7 @@ import:
 - package: github.com/goware/httpcoala
 - package: github.com/russross/blackfriday
   version: ^1.4.0
+- package: github.com/joho/godotenv
+  version: ^1.0.0
+- package: github.com/joeshaw/envdecode
+- package: github.com/denisenkom/go-mssqldb

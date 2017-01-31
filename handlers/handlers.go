@@ -7,20 +7,40 @@ import (
 	"math/rand"
 	"net/http"
 
+	"github.com/dstroot/chi_api/models"
 	"github.com/pressly/chi"
 	"github.com/pressly/chi/render"
 )
 
+// Article struct
 type Article struct {
 	ID    string `json:"id"`
 	Title string `json:"title"`
 }
 
-// Article fixture data
 var articles = []*Article{
 	{ID: "1", Title: "Hi"},
 	{ID: "2", Title: "sup"},
 }
+
+// https://github.com/golang/lint/pull/245
+// Any package using context.WithValue and defining key types should either:
+//
+// - export their context key type
+// - provide a constructor for it
+// - provide some other helper func which does the context.WithValue behind the scenes.
+//
+// You really don't want to use strings as the keys. That means there's no
+// isolated namespaces between packages, so different packages can collide
+// and use the same keys, since everybody has access to the string type.
+// But by requiring people to use their own types, there can't be conflicts.
+
+// Key is the context key for this library.
+type Key struct {
+	article string
+}
+
+var key Key
 
 // ArticleCtx middleware is used to load an Article object from
 // the URL parameters passed through as the request. In case
@@ -34,7 +54,10 @@ func ArticleCtx(next http.Handler) http.Handler {
 			render.JSON(w, r, http.StatusText(http.StatusNotFound))
 			return
 		}
-		ctx := context.WithValue(r.Context(), "article", article)
+
+		// set context key
+		key.article = "article"
+		ctx := context.WithValue(r.Context(), key, article)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -80,7 +103,7 @@ func GetArticle(w http.ResponseWriter, r *http.Request) {
 	// Assume if we've reach this far, we can access the article
 	// context because this handler is a child of the ArticleCtx
 	// middleware. The worst case, the recoverer middleware will save us.
-	article := r.Context().Value("article").(*Article)
+	article := r.Context().Value(key).(*Article)
 
 	// chi provides a basic companion subpackage "github.com/pressly/chi/render", however
 	// you can use any responder compatible with net/http.
@@ -89,7 +112,7 @@ func GetArticle(w http.ResponseWriter, r *http.Request) {
 
 // UpdateArticle updates an existing Article in our persistent store.
 func UpdateArticle(w http.ResponseWriter, r *http.Request) {
-	article := r.Context().Value("article").(*Article)
+	article := r.Context().Value(key).(*Article)
 
 	data := struct {
 		*Article
@@ -112,7 +135,7 @@ func DeleteArticle(w http.ResponseWriter, r *http.Request) {
 	// Assume if we've reach this far, we can access the article
 	// context because this handler is a child of the ArticleCtx
 	// middleware. The worst case, the recoverer middleware will save us.
-	article := r.Context().Value("article").(*Article)
+	article := r.Context().Value(key).(*Article)
 
 	article, err = dbRemoveArticle(article.ID)
 	if err != nil {
@@ -124,7 +147,7 @@ func DeleteArticle(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, article)
 }
 
-// A completely separate router for administrator routes
+// AdminRouter is a completely separate router for administrator routes
 func AdminRouter() chi.Router {
 	r := chi.NewRouter()
 	r.Use(AdminOnly)
@@ -152,7 +175,7 @@ func AdminOnly(next http.Handler) http.Handler {
 	})
 }
 
-// paginate is a stub, but very possible to implement middleware logic
+// Paginate is a stub, but very possible to implement middleware logic
 // to handle the request params for handling a paginated request.
 func Paginate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -189,4 +212,24 @@ func dbRemoveArticle(id string) (*Article, error) {
 		}
 	}
 	return nil, errors.New("article not found")
+}
+
+// TaxPro Route
+func TaxPro(w http.ResponseWriter, r *http.Request) {
+
+	// Get params
+	efin := chi.URLParam(r, "efin") // c.Param("efin")
+	year := chi.URLParam(r, "year") // c.Param("year")
+
+	// Get tax professionals
+	results, err := models.GetTaxpro(year, efin)
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, http.StatusText(http.StatusNotFound))
+		render.JSON(w, r, err.Error())
+		return
+	}
+
+	// Render results
+	render.JSON(w, r, results)
 }
