@@ -43,3 +43,9 @@ $ curl http://localhost:3333/articles/97
 $ curl http://localhost:3333/articles
 
 [{"id":"2","title":"sup"},{"id":"97","title":"awesomeness"}]
+
+
+## Organize go code
+
+http://stackoverflow.com/questions/31218008/sharing-a-globally-defined-db-conn-with-multiple-packages-in-golang
+http://www.alexedwards.net/blog/organising-database-access

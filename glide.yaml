@@ -13,3 +13,5 @@ import:
   version: ^1.0.0
 - package: github.com/joeshaw/envdecode
 - package: github.com/denisenkom/go-mssqldb
+- package: github.com/pkg/errors
+  version: ^0.8.0

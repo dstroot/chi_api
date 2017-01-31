@@ -1,61 +1,32 @@
 package main
 
 import (
-	"database/sql"
-	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/dstroot/chi_api/handlers"
-	"github.com/gin-gonic/gin"
 	"github.com/goware/httpcoala"
-	env "github.com/joeshaw/envdecode"
-	"github.com/joho/godotenv"
 	"github.com/pressly/chi"
 	"github.com/pressly/chi/docgen"
 	"github.com/pressly/chi/middleware"
 	"github.com/russross/blackfriday"
 )
 
-/**
- * Global Variables
- */
-
-var (
-	cfg Config  // global configuration
-	db  *sql.DB // global database
-)
-
-func initialize() {
-	// In development load env from .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	// Read configuration from env
-	// (This places the env variables into the cfg struct for later use)
-	err0 := env.Decode(&cfg)
-	check(err0)
-
-	if cfg.Debug {
-		prettyCfg, _ := json.MarshalIndent(cfg, "", "    ")
-		log.Printf("Configuration: %v", string(prettyCfg))
-		gin.SetMode(gin.DebugMode)
-	} else {
-		gin.SetMode(gin.ReleaseMode)
+// check streamlines error checks - use it *only*
+// when the program should halt
+func check(e error) {
+	if e != nil {
+		log.Printf("FATAL: %+v\n", e)
+		os.Exit(1)
 	}
 }
 
 func main() {
 
-	initialize()
-
-	// Initialize database
-	err := setupDatabase()
+	err := initialize()
 	check(err)
-	defer db.Close()
 
 	r := chi.NewRouter()
 
@@ -106,7 +77,7 @@ func main() {
 
 	// RESTy routes for tax professionals
 	r.Route("/taxpro", func(r chi.Router) {
-		r.Get("/:year/:efin", handler.TaxPro) // GET /articles/search
+		r.Get("/:year/:efin", handler.TaxPro)
 	})
 
 	// Mount the admin sub-router, the same as a call to
